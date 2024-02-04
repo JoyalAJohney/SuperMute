@@ -1,0 +1,36 @@
+{
+    "manifest_version": 3,
+    "name": "SuperMute",
+    "version": "1.0",
+    "permissions": ["activeTab", "tabs", "scripting"],
+    "host_permissions": ["*://meet.google.com/*"],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_icon": {
+            "16": "icon.png",
+            "48": "icon.png",
+            "128": "icon.png"
+        },
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [
+        {
+            "matches": ["*://meet.google.com/*"],
+            "js": ["content.js"],
+            "run_at": "document_end"
+        },
+        {
+            "matches": ["<all_urls>"],
+            "js": ["overlay.js"],
+            "run_at": "document_end",
+            "all_frames": true
+        }
+    ],
+    "icons": {
+        "16": "./icon.png",
+        "48": "./icon.png",
+        "128": "./icon.png"
+    }
+}
