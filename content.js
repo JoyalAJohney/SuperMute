@@ -6,7 +6,6 @@ function sendMessageToBackgroundWorker(message) {
     chrome.runtime.sendMessage({ from: "content", message })
 }
 
-
 function attachObserver(button) {
     let isAudioMuted = false;
     let isVideoMuted = false;
@@ -55,9 +54,10 @@ function checkAndAttachObservers() {
     }
 }
 
+
+
 function startDOMObserver() {
     console.log('Start observing DOM')
-    document.documentElement.setAttribute('supermute-google-meet-tab', 'true');
     const observer = new MutationObserver(() => {
         checkAndAttachObservers();
     });

@@ -7,6 +7,7 @@ let isSuperMuted = false;
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.url) {
         if (changeInfo.url.startsWith("https://meet.google.com/")) {
+            console.log('Change in meet tab detected')
             googleMeetTabs[tabId] = changeInfo.url;
         } else {
             delete googleMeetTabs[tabId];
@@ -18,11 +19,13 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // Remove overlay - When Google Meet is closed
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
     if (googleMeetTabs[tabId]) {
+        console.log('Meet tab removed')
         delete googleMeetTabs[tabId];
 
         const isAnyMeetTabOpen = Object.values(googleMeetTabs).some(url => url.includes('meet.google.com'));
         if (!isAnyMeetTabOpen) {
-            updateOverlay(false); 
+            isSuperMuted = false
+            updateOverlay(isSuperMuted); 
         }
     }
 });
@@ -37,7 +40,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true; 
     } else if (request.from === "content") {
         // From content script
-        const message = data.message;
+        const message = request.message;
         console.log(`Audio Muted: ${message.audioMuted}, Video Muted: ${message.videoMuted}`)
         
         isSuperMuted = message.audioMuted && message.videoMuted
@@ -49,7 +52,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // Update overlay across all tabs
 function updateOverlay(isSuperMuted) {
-    chrome.tabs.query({}, (tabs) => {
+    chrome.tabs.query({ active: true }, (tabs) => {
         tabs.forEach((tab) => {
             chrome.tabs.sendMessage(tab.id, { isSuperMuted });
         });
@@ -69,5 +72,3 @@ chrome.runtime.onInstalled.addListener(() => {
         });
     });
 });
-
-
