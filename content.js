@@ -22,7 +22,6 @@ function attachObserver(button) {
             isVideoMuted = videoButton.getAttribute('data-is-muted') === 'true';
         }
 
-        console.log(`Audio Muted: ${isAudioMuted}, Video Muted: ${isVideoMuted}`);
         sendMessageToBackgroundWorker({ audioMuted: isAudioMuted, videoMuted: isVideoMuted })
     });
 
@@ -68,4 +67,18 @@ function startDOMObserver() {
 
 startDOMObserver();
 
+
+
+// Toggle mute/unmute
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "toggleMic") {
+        const micButton = document.querySelector(buttonSelectors.audio);
+        console.log('Found mic: ', micButton)
+        if (micButton) micButton.click();
+    } else if (request.action === "toggleVideo") {
+        const videoButton = document.querySelector(buttonSelectors.video);
+        console.log('Found video: ', videoButton)
+        if (videoButton) videoButton.click();
+    }
+});
 

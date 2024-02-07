@@ -28,9 +28,23 @@
             "all_frames": true
         }
     ],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'"
+    },
     "icons": {
         "16": "./icon.png",
         "48": "./icon.png",
         "128": "./icon.png"
-    }
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "icons/video-solid.svg", 
+                "icons/video-slash-solid.svg",
+                "icons/microphone-solid.svg", 
+                "icons/microphone-slash-solid.svg"
+            ],
+            "matches": ["<all_urls>"]
+        }
+    ]
 }
