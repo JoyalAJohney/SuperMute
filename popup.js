@@ -1,6 +1,11 @@
-document.getElementById('toggleMute').addEventListener('click', () => {
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        // tabs[0] -> current active tab
-        chrome.tabs.sendMessage(tabs[0].id, {action: "toggleMute"});
+// popup.js
+document.addEventListener('DOMContentLoaded', function() {
+    var reloadButton = document.getElementById('reloadButton');
+    reloadButton.addEventListener('click', function() {
+        chrome.tabs.query({}, function(tabs) {
+            tabs.forEach(function(tab) {
+                chrome.tabs.reload(tab.id);
+            });
+        });
     });
 });

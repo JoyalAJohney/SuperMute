@@ -8,11 +8,7 @@
         "service_worker": "background.js"
     },
     "action": {
-        "default_icon": {
-            "16": "icon.png",
-            "48": "icon.png",
-            "128": "icon.png"
-        },
+        "default_icon": "logo/icon_48.png",
         "default_popup": "popup.html"
     },
     "content_scripts": [
@@ -32,9 +28,9 @@
         "extension_pages": "script-src 'self'; object-src 'self'"
     },
     "icons": {
-        "16": "./icon.png",
-        "48": "./icon.png",
-        "128": "./icon.png"
+        "16": "logo/icon_16.png",
+        "48": "logo/icon_48.png",
+        "128": "logo/icon_128.png"
     },
     "web_accessible_resources": [
         {
