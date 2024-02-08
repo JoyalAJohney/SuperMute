@@ -19,7 +19,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function requestSuperMuteState() {
     chrome.runtime.sendMessage({ from: "overlay", query: "getSuperMuteState"}, (response) => {
         if (response) {
-            console.log(response)
             updateContainerVisibility(response.visible);
             updateContainer(response.audioMuted, response.videoMuted);
         }
@@ -82,19 +81,12 @@ function createFloatingContainer() {
     floatingContainer.appendChild(toggleContainer);
 
 
-    // const spaceLeftDiv = document.createElement('div');
-    // spaceLeftDiv.style.width = '100%';
-    // spaceLeftDiv.style.height = '100%';
-    // toggleContainer.appendChild(spaceLeftDiv);
-
-
     const micDiv = document.createElement('div');
     micDiv.style.width = '100%';
     micDiv.style.height = '100%';
     micDiv.style.display = 'flex';
     micDiv.style.justifyContent = 'center';
     micDiv.style.alignItems = 'center';
-    // micDiv.style.borderRight = '1.5px solid rgb(195, 198, 209)'
     toggleContainer.appendChild(micDiv);
 
     const micToggle = document.createElement('img');
@@ -126,23 +118,16 @@ function createFloatingContainer() {
     videoToggle.style.height = '1.1vw';
     videoDiv.appendChild(videoToggle);
 
-    // const spaceRightDiv = document.createElement('div');
-    // spaceRightDiv.style.width = '100%';
-    // spaceRightDiv.style.height = '100%';
-    // toggleContainer.appendChild(spaceRightDiv);
-
 
     // Initially hide the toggle container
     toggleContainer.style.visibility = 'hidden';
 
 
     micToggle.addEventListener('click', () => {
-        console.log('Clicked mic')
         chrome.runtime.sendMessage({ action: "toggleMic" });
     });
 
     videoToggle.addEventListener('click', () => {
-        console.log('Clicked video')
         chrome.runtime.sendMessage({ action: "toggleVideo" });
     });
 
@@ -172,27 +157,16 @@ function updateContainer(audioMuted, videoMuted) {
     ensureContainerExists();
     const micIcon = document.querySelector('.super-mute-mic');
     const videoIcon = document.querySelector('.super-mute-video');
+
     if (micIcon) {
-        if (audioMuted) {
-            micIcon.src = chrome.runtime.getURL('icons/microphone-slash-solid.svg');
-            // micIcon.style.height = '1.5vw';
-            // micIcon.style.width = '1.5vw';
-        } else {
-            micIcon.src = chrome.runtime.getURL('icons/microphone-solid.svg');
-            // micIcon.style.height = '1.2vw';
-            // micIcon.style.width = '1.2vw';
-        }
+        micIcon.src = audioMuted ? 
+            chrome.runtime.getURL('icons/microphone-slash-solid.svg'): 
+            chrome.runtime.getURL('icons/microphone-solid.svg')
     } 
     if (videoIcon) {
-        if (videoMuted) {
-            videoIcon.src = chrome.runtime.getURL('icons/video-slash-solid.svg');
-            // videoIcon.style.height = '1.4vw';
-            // videoIcon.style.width = '1.4vw';
-        } else {
-            videoIcon.src = chrome.runtime.getURL('icons/video-solid.svg');
-            // videoIcon.style.height = '1.2vw';
-            // videoIcon.style.width = '1.2vw';
-        }
+        videoIcon.src = videoMuted ? 
+            chrome.runtime.getURL('icons/video-slash-solid.svg') :
+            chrome.runtime.getURL('icons/video-solid.svg')
     } 
 }
 
@@ -201,7 +175,6 @@ function updateContainer(audioMuted, videoMuted) {
 function ensureContainerExists() {
     if (!floatingContainer && window.self === window.top) {
         createFloatingContainer();
-        floatingContainer.dispatchEvent('mouseenter')
     }
 }
 

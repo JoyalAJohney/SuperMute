@@ -10,10 +10,6 @@ function updateGlobalMuteState() {
     isAnyAudioMuted = Object.values(googleMeetTabs).some(tab => tab.audioMuted);
     isAnyVideoMuted = Object.values(googleMeetTabs).some(tab => tab.videoMuted);
 
-    console.log('isAnyAudioMuted: ', isAnyAudioMuted)
-    console.log('isAnyVideoMuted: ', isAnyVideoMuted)
-    console.log('googleMeetTabs: ', googleMeetTabs)
-
     chrome.tabs.query({}, (tabs) => {
         tabs.forEach((tab) => {
             chrome.tabs.sendMessage(tab.id, { 
@@ -58,10 +54,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     
     if (request.from === "content" && sender.tab && googleMeetTabs[sender.tab.id]) {
         // State update from a Google Meet tab
-        console.log('request from Meet session: ', request)
         const { audioMuted, videoMuted } = request.message;
         googleMeetTabs[sender.tab.id] = { audioMuted, videoMuted };
-        console.log(`Audio Muted: ${audioMuted}, Video Muted: ${videoMuted}`);
         
         updateGlobalMuteState(); // Reflect this change in all tabs
     }
@@ -95,7 +89,6 @@ chrome.runtime.onInstalled.addListener(() => {
 // Listens for Mic/Video toggle
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "toggleMic" || request.action === "toggleVideo") {
-        console.log('Toggle received: ', request.action)
         chrome.tabs.query({ url: "*://meet.google.com/*" }, (tabs) => {
             tabs.forEach((tab) => {
                 chrome.tabs.sendMessage(tab.id, request);

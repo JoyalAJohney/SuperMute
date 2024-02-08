@@ -41,13 +41,11 @@ function checkAndAttachObservers() {
     const videoButton = document.querySelector(buttonSelectors.video)
 
     if (audioButton && !audioButton.hasAttribute('supermute-observed')) {
-        console.log('Found audio', audioButton)
         attachObserver(audioButton, 'audio')
         audioButton.setAttribute('supermute-observed', 'true');
     }
 
     if (videoButton && !videoButton.hasAttribute('supermute-observed')) {
-        console.log('Found video', videoButton)
         attachObserver(videoButton, 'video')
         videoButton.setAttribute('supermute-observed', 'true');
     }
@@ -56,7 +54,6 @@ function checkAndAttachObservers() {
 
 
 function startDOMObserver() {
-    console.log('Start observing DOM')
     const observer = new MutationObserver(() => {
         checkAndAttachObservers();
     });
@@ -73,11 +70,9 @@ startDOMObserver();
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "toggleMic") {
         const micButton = document.querySelector(buttonSelectors.audio);
-        console.log('Found mic: ', micButton)
         if (micButton) micButton.click();
     } else if (request.action === "toggleVideo") {
         const videoButton = document.querySelector(buttonSelectors.video);
-        console.log('Found video: ', videoButton)
         if (videoButton) videoButton.click();
     }
 });
