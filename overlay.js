@@ -105,9 +105,9 @@ function createFloatingContainer() {
     micDiv.appendChild(micToggle);
 
     const seperation = document.createElement('img');
-    seperation.style.width = '3.5px';
-    seperation.style.height = '60%';
-    seperation.style.backgroundColor = 'rgb(195, 198, 209)';
+    seperation.style.width = '2px';
+    seperation.style.height = '55%';
+    seperation.style.backgroundColor = 'rgba(195, 198, 209, 0.5)';
     toggleContainer.appendChild(seperation)
 
 
@@ -149,7 +149,7 @@ function createFloatingContainer() {
 
     // Event listener for hover effect
     floatingContainer.addEventListener('mouseenter', function() {
-        floatingContainer.style.width = '6vw';
+        floatingContainer.style.width = '6.3vw';
         floatingContainer.style.borderRadius = '50px';
         icon.style.visibility = 'hidden'; // Hide the ⚡ icon
         toggleContainer.style.visibility = 'visible'; // Show the mic and video icons
