@@ -59,6 +59,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         
         updateGlobalMuteState(); // Reflect this change in all tabs
     }
+
+
+    if (request.action === "updatePosition") {
+        chrome.tabs.query({}, (tabs) => {
+            tabs.forEach((tab) => {
+                chrome.tabs.sendMessage(tab.id, { action: "updatePosition", position: request.position });
+            });
+        });
+    }
 });
 
 
@@ -86,7 +95,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 
-// Listens for Mic/Video toggle
+// Listens for Mic/Video toggle or endCall toggle
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "toggleMic" || request.action === "toggleVideo") {
         chrome.tabs.query({ url: "*://meet.google.com/*" }, (tabs) => {
@@ -94,5 +103,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 chrome.tabs.sendMessage(tab.id, request);
             });
         });
+    }
+
+    if (request.action === "closeAllGoogleMeetTabs") {
+        Object.keys(googleMeetTabs).forEach((tabId) => {
+            chrome.tabs.remove(parseInt(tabId));
+        });
+
+        // Clear the googleMeetTabs list after closing the tabs
+        googleMeetTabs = {};
+        
+        updateGlobalMuteState();
     }
 });

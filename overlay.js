@@ -12,6 +12,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         updateContainerVisibility(message.visible);
         updateContainer(message.audioMuted, message.videoMuted);
     }
+
+    if (message.action === "updatePosition") {
+        const { left, top } = message.position;
+        if (floatingContainer) {
+            floatingContainer.style.left = left;
+            floatingContainer.style.top = top;
+        }
+    }
 });
 
 
@@ -21,6 +29,14 @@ function requestSuperMuteState() {
         if (response) {
             updateContainerVisibility(response.visible);
             updateContainer(response.audioMuted, response.videoMuted);
+
+            chrome.storage.local.get(['Supermute_floatingContainerPos'], (result) => {
+                if (result.Supermute_floatingContainerPos) {
+                    const { left, top } = result.Supermute_floatingContainerPos;
+                    floatingContainer.style.left = left;
+                    floatingContainer.style.top = top;
+                }
+            });
         }
     });
 }
@@ -81,6 +97,22 @@ function createFloatingContainer() {
     floatingContainer.appendChild(toggleContainer);
 
 
+    const dragDiv = document.createElement('div');
+    dragDiv.style.width = '30%';
+    dragDiv.style.height = '100%';
+    dragDiv.style.display = 'flex';
+    dragDiv.style.justifyContent = 'end';
+    dragDiv.style.alignItems = 'center';
+    toggleContainer.appendChild(dragDiv);  
+    
+    const gripIcon = document.createElement('img');
+    gripIcon.id = 'super-mute-gripIcon';
+    gripIcon.className = 'super-mute-grip';
+    gripIcon.src = chrome.runtime.getURL('icons/grip-lines.svg');
+    gripIcon.style.height = '0.8vw';
+    dragDiv.appendChild(gripIcon);
+
+
     const micDiv = document.createElement('div');
     micDiv.style.width = '100%';
     micDiv.style.height = '100%';
@@ -96,11 +128,11 @@ function createFloatingContainer() {
     micToggle.style.height = '1.1vw';
     micDiv.appendChild(micToggle);
 
-    const seperation = document.createElement('img');
-    seperation.style.width = '2px';
-    seperation.style.height = '55%';
-    seperation.style.backgroundColor = 'rgba(195, 198, 209, 0.5)';
-    toggleContainer.appendChild(seperation)
+    const seperationOne = document.createElement('img');
+    seperationOne.style.width = '2px';
+    seperationOne.style.height = '55%';
+    seperationOne.style.backgroundColor = 'rgba(195, 198, 209, 0.5)';
+    toggleContainer.appendChild(seperationOne)
 
 
     const videoDiv = document.createElement('div')
@@ -118,6 +150,32 @@ function createFloatingContainer() {
     videoToggle.style.height = '1.1vw';
     videoDiv.appendChild(videoToggle);
 
+    const seperationTwo = document.createElement('img');
+    seperationTwo.style.width = '2px';
+    seperationTwo.style.height = '55%';
+    seperationTwo.style.backgroundColor = 'rgba(195, 198, 209, 0.5)';
+    toggleContainer.appendChild(seperationTwo)
+
+    const endCallDiv = document.createElement('div')
+    endCallDiv.style.width = '100%';
+    endCallDiv.style.height = '100%';
+    endCallDiv.style.display = 'flex';
+    endCallDiv.style.justifyContent = 'center';
+    endCallDiv.style.alignItems = 'center';
+    toggleContainer.appendChild(endCallDiv);
+
+    const endCallToggle = document.createElement('img');
+    endCallToggle.id = 'super-mute-endCallToggle';
+    endCallToggle.className = 'super-mute-endCall';
+    endCallToggle.src = chrome.runtime.getURL('icons/hang-up.png');
+    endCallToggle.style.height = '1.6vw';
+    endCallDiv.appendChild(endCallToggle);
+
+    const seperationThree = document.createElement('img');
+    seperationThree.style.width = '4px';
+    seperationThree.style.height = '100%';
+    toggleContainer.appendChild(seperationThree)
+
 
     // Initially hide the toggle container
     toggleContainer.style.visibility = 'hidden';
@@ -131,10 +189,14 @@ function createFloatingContainer() {
         chrome.runtime.sendMessage({ action: "toggleVideo" });
     });
 
+    endCallToggle.addEventListener('click', () => {
+        chrome.runtime.sendMessage({ action: "closeAllGoogleMeetTabs" });
+    });
+
 
     // Event listener for hover effect
     floatingContainer.addEventListener('mouseenter', function() {
-        floatingContainer.style.width = '6.3vw';
+        floatingContainer.style.width = '9.5vw';
         floatingContainer.style.borderRadius = '50px';
         icon.style.visibility = 'hidden'; // Hide the ⚡ icon
         toggleContainer.style.visibility = 'visible'; // Show the mic and video icons
@@ -150,6 +212,8 @@ function createFloatingContainer() {
 
     // Initially hide the container
     floatingContainer.style.display = 'none';
+
+    enableDragging(floatingContainer)
 }
 
 
@@ -175,6 +239,46 @@ function updateContainer(audioMuted, videoMuted) {
 function ensureContainerExists() {
     if (!floatingContainer && window.self === window.top) {
         createFloatingContainer();
+    }
+}
+
+
+function enableDragging(element) {
+    let isDragging = false;
+    let initialX, initialY;
+
+    element.addEventListener('mousedown', (e) => {
+        isDragging = true
+        initialX = e.clientX - element.getBoundingClientRect().left;
+        initialY = e.clientY - element.getBoundingClientRect().top;
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    });
+
+    function onMouseMove(e) {
+        if (isDragging) {
+            let newX = e.clientX - initialX;
+            let newY = e.clientY - initialY;
+
+            element.style.left = `${newX}px`;
+            element.style.top = `${newY}px`;
+        }
+    }
+
+    function onMouseUp() {
+        isDragging = false;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+
+        // Store the new position in chrome.storage
+        const newPos = { left: element.style.left, top: element.style.top };
+            chrome.storage.local.set({ 'Supermute_floatingContainerPos': newPos }, () => {
+            console.log('Position updated');
+        });
+
+        // Broadcast the new position to all tabs
+        chrome.runtime.sendMessage({ action: "updatePosition", position: newPos });
     }
 }
 
