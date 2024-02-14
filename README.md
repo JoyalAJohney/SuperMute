@@ -1,5 +1,5 @@
 
-# SuperMute
+# SuperMute⚡
 
 Browser extension that helps you control your Google Meet from any tab! Gone are the days to constantly switch between tabs to mute/unmute yourself. With SuperMute you could even end the call from the current tab and SuperMute will end the call and even close the tab.
 
